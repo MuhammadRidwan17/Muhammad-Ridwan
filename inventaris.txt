@@ -1,0 +1,2 @@
+01,pancing,10,baik
+03,gayung,5,baik

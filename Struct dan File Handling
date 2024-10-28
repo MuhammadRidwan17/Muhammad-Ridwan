@@ -1,0 +1,175 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+// Definisi struct untuk menyimpan data peralatan laboratorium
+struct Peralatan {
+    string kode;    // Kode unik peralatan
+    string nama;    // Nama peralatan
+    int jumlah;     // Jumlah peralatan
+    string kondisi; // Kondisi peralatan (baik/rusak, dsb)
+};
+
+// Fungsi untuk menambah data peralatan ke dalam vector inventaris
+void tambahPeralatan(vector<Peralatan> &inventaris) {
+    Peralatan p; // Membuat variabel struct Peralatan
+    cout << "Masukkan kode peralatan: ";
+    cin >> p.kode; // Input kode peralatan
+    cout << "Masukkan nama peralatan: ";
+    cin.ignore(); // Mengabaikan karakter newline sebelumnya
+    getline(cin, p.nama); // Input nama peralatan
+    cout << "Masukkan jumlah peralatan: ";
+    cin >> p.jumlah; // Input jumlah peralatan
+    cout << "Masukkan kondisi peralatan: ";
+    cin.ignore(); // Mengabaikan karakter newline sebelumnya
+    getline(cin, p.kondisi); // Input kondisi peralatan
+
+    // Menambahkan peralatan baru ke dalam vector inventaris
+    inventaris.push_back(p);
+    cout << "Data peralatan berhasil ditambah!\n";
+}
+
+// Fungsi untuk mengubah data peralatan berdasarkan kode
+void ubahPeralatan(vector<Peralatan> &inventaris) {
+    string kode;
+    cout << "Masukkan kode peralatan yang ingin diubah: ";
+    cin >> kode; // Input kode peralatan yang ingin diubah
+    
+    // Mencari peralatan berdasarkan kode
+    for (auto &p : inventaris) {
+        if (p.kode == kode) { // Jika ditemukan
+            // Meminta input data baru
+            cout << "Masukkan nama baru: ";
+            cin.ignore();
+            getline(cin, p.nama);
+            cout << "Masukkan jumlah baru: ";
+            cin >> p.jumlah;
+            cout << "Masukkan kondisi baru: ";
+            cin.ignore();
+            getline(cin, p.kondisi);
+            cout << "Data peralatan berhasil diubah!\n";
+            return;
+        }
+    }
+    // Jika peralatan tidak ditemukan
+    cout << "Peralatan dengan kode " << kode << " tidak ditemukan.\n";
+}
+
+// Fungsi untuk menghapus data peralatan berdasarkan kode
+void hapusPeralatan(vector<Peralatan> &inventaris) {
+    string kode;
+    cout << "Masukkan kode peralatan yang ingin dihapus: ";
+    cin >> kode; // Input kode peralatan yang ingin dihapus
+    
+    // Mencari peralatan berdasarkan kode
+    for (auto it = inventaris.begin(); it != inventaris.end(); ++it) {
+        if (it->kode == kode) { // Jika ditemukan
+            // Menghapus peralatan dari vector
+            inventaris.erase(it);
+            cout << "Data peralatan berhasil dihapus!\n";
+            return;
+        }
+    }
+    // Jika peralatan tidak ditemukan
+    cout << "Peralatan dengan kode " << kode << " tidak ditemukan.\n";
+}
+
+// Fungsi untuk menyimpan data peralatan ke file
+void simpanKeFile(const vector<Peralatan> &inventaris, const string &namaFile) {
+    ofstream file(namaFile); // Membuka file output
+    if (file.is_open()) { // Memeriksa apakah file berhasil dibuka
+        // Menyimpan setiap data peralatan ke file dalam format CSV
+        for (const auto &p : inventaris) {
+            file << p.kode << "," << p.nama << "," << p.jumlah << "," << p.kondisi << endl;
+        }
+        file.close(); // Menutup file
+        cout << "Data peralatan berhasil disimpan ke file.\n";
+    } else {
+        cout << "Gagal membuka file.\n"; // Jika file gagal dibuka
+    }
+}
+
+// Fungsi untuk membaca data peralatan dari file
+void bacaDariFile(vector<Peralatan> &inventaris, const string &namaFile) {
+    ifstream file(namaFile); // Membuka file input
+    if (file.is_open()) { // Memeriksa apakah file berhasil dibuka
+        inventaris.clear(); // Menghapus data lama dari vector
+        Peralatan p; // Variabel sementara untuk menyimpan data peralatan
+        // Membaca data peralatan dari file dalam format CSV
+        while (getline(file, p.kode, ',') && getline(file, p.nama, ',') &&
+               (file >> p.jumlah) && file.ignore() && getline(file, p.kondisi)) {
+            inventaris.push_back(p); // Menambahkan data peralatan ke vector
+        }
+        file.close(); // Menutup file
+        cout << "Data peralatan berhasil dibaca dari file.\n";
+    } else {
+        cout << "Gagal membuka file.\n"; // Jika file gagal dibuka
+    }
+}
+
+// Fungsi untuk menampilkan laporan inventaris yang diurutkan berdasarkan kode
+void tampilkanLaporan(const vector<Peralatan> &inventaris) {
+    // Membuat salinan vector inventaris agar tidak mengubah urutan aslinya
+    vector<Peralatan> sortedInventaris = inventaris;
+    // Mengurutkan data peralatan berdasarkan kode (ascending)
+    sort(sortedInventaris.begin(), sortedInventaris.end(), [](const Peralatan &a, const Peralatan &b) {
+        return a.kode < b.kode;
+    });
+
+    // Menampilkan laporan inventaris
+    cout << "Laporan Inventaris Peralatan:\n";
+    cout << "Kode\tNama\tJumlah\tKondisi\n";
+    for (const auto &p : sortedInventaris) {
+        cout << p.kode << "\t" << p.nama << "\t" << p.jumlah << "\t" << p.kondisi << endl;
+    }
+}
+
+// Fungsi utama (main)
+int main() {
+    vector<Peralatan> inventaris; // Vector untuk menyimpan data peralatan
+    string namaFile = "inventaris.txt"; // Nama file untuk menyimpan data
+    int pilihan;
+
+    // Membaca data peralatan dari file saat program dimulai
+    bacaDariFile(inventaris, namaFile);
+
+    // Menampilkan menu interaktif untuk pengguna
+    do {
+        cout << "\nMenu:\n";
+        cout << "1. Tambah Peralatan\n";
+        cout << "2. Ubah Peralatan\n";
+        cout << "3. Hapus Peralatan\n";
+        cout << "4. Tampilkan Laporan\n";
+        cout << "5. Simpan dan Keluar\n";
+        cout << "Pilihan: ";
+        cin >> pilihan; // Input pilihan dari pengguna
+
+        // Menjalankan fitur sesuai dengan pilihan pengguna
+        switch (pilihan) {
+            case 1:
+                tambahPeralatan(inventaris);
+                break;
+            case 2:
+                ubahPeralatan(inventaris);
+                break;
+            case 3:
+                hapusPeralatan(inventaris);
+                break;
+            case 4:
+                tampilkanLaporan(inventaris);
+                break;
+            case 5:
+                // Menyimpan data ke file sebelum keluar dari program
+                simpanKeFile(inventaris, namaFile);
+                cout << "Keluar dari program.\n";
+                break;
+            default:
+                cout << "Pilihan tidak valid.\n"; // Jika pilihan tidak dikenali
+        }
+    } while (pilihan != 5); // Program akan terus berjalan hingga pengguna memilih untuk keluar
+
+    return 0;
+}

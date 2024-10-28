@@ -1,0 +1,165 @@
+#include <iostream>
+#include <string>
+#include <stack>
+#include <queue>
+using namespace std;
+
+// Struct Buku yang menyimpan informasi buku
+struct Buku {
+    string ISBN;
+    string judul;
+    string pengarang;
+    int tahunTerbit;
+};
+
+// Class Perpustakaan untuk mengelola buku, peminjaman, dan pengembalian
+class Perpustakaan {
+private:
+    Buku* daftarBuku[100];  // Array of pointers untuk menyimpan data buku
+    int jumlahBuku;  // Menyimpan jumlah buku yang ada di perpustakaan
+    stack<string> riwayatPeminjaman;  // Stack untuk menyimpan riwayat peminjaman buku
+    queue<string> antrianPeminjaman;  // Queue untuk mengelola antrian peminjaman buku
+
+public:
+    // Konstruktor
+    Perpustakaan() {
+        jumlahBuku = 0;
+    }
+
+    // Fungsi untuk menambahkan buku baru ke perpustakaan
+    void tambahBuku(string ISBN, string judul, string pengarang, int tahunTerbit) {
+        Buku* bukuBaru = new Buku();  // Membuat objek buku baru
+        bukuBaru->ISBN = ISBN;
+        bukuBaru->judul = judul;
+        bukuBaru->pengarang = pengarang;
+        bukuBaru->tahunTerbit = tahunTerbit;
+        daftarBuku[jumlahBuku] = bukuBaru;  // Menyimpan pointer ke buku baru dalam array
+        jumlahBuku++;  // Menambah jumlah buku
+    }
+
+    // Fungsi untuk mencari buku berdasarkan ISBN
+    void cariBuku(string ISBN) {
+        for (int i = 0; i < jumlahBuku; i++) {
+            if (daftarBuku[i]->ISBN == ISBN) {
+                cout << "Buku ditemukan:\n";
+                cout << "ISBN: " << daftarBuku[i]->ISBN << "\n";
+                cout << "Judul: " << daftarBuku[i]->judul << "\n";
+                cout << "Pengarang: " << daftarBuku[i]->pengarang << "\n";
+                cout << "Tahun Terbit: " << daftarBuku[i]->tahunTerbit << "\n";
+                return;
+            }
+        }
+        cout << "Buku dengan ISBN " << ISBN << " tidak ditemukan.\n";
+    }
+
+    // Fungsi untuk menampilkan seluruh data buku
+    void tampilkanBuku() {
+        if (jumlahBuku == 0) {
+            cout << "Belum ada buku di perpustakaan.\n";
+            return;
+        }
+        cout << "Daftar Buku:\n";
+        for (int i = 0; i < jumlahBuku; i++) {
+            cout << i + 1 << ". " << daftarBuku[i]->judul << " - " << daftarBuku[i]->pengarang 
+                 << " (Tahun: " << daftarBuku[i]->tahunTerbit << ", ISBN: " << daftarBuku[i]->ISBN << ")\n";
+        }
+    }
+
+    // Fungsi untuk meminjam buku (ditambahkan ke antrian dan stack riwayat)
+    void pinjamBuku(string ISBN) {
+        antrianPeminjaman.push(ISBN);  // Menambah ISBN buku yang dipinjam ke antrian
+        riwayatPeminjaman.push(ISBN);  // Menambah ISBN buku yang dipinjam ke riwayat peminjaman
+        cout << "Buku dengan ISBN " << ISBN << " telah ditambahkan ke antrian peminjaman.\n";
+    }
+
+    // Fungsi untuk mengembalikan buku (dihapus dari antrian)
+    void kembalikanBuku() {
+        if (antrianPeminjaman.empty()) {
+            cout << "Tidak ada buku dalam antrian peminjaman.\n";
+        } else {
+            string ISBN = antrianPeminjaman.front();
+            antrianPeminjaman.pop();  // Menghapus buku dari antrian
+            cout << "Buku dengan ISBN " << ISBN << " telah dikembalikan.\n";
+        }
+    }
+
+    // Fungsi untuk menampilkan riwayat peminjaman buku
+    void tampilkanRiwayatPeminjaman() {
+        if (riwayatPeminjaman.empty()) {
+            cout << "Belum ada buku yang dipinjam.\n";
+        } else {
+            cout << "Riwayat Peminjaman Buku:\n";
+            stack<string> temp = riwayatPeminjaman;  // Salin riwayat ke stack sementara
+            while (!temp.empty()) {
+                cout << "ISBN: " << temp.top() << "\n";
+                temp.pop();
+            }
+        }
+    }
+};
+
+int main() {
+    Perpustakaan perpustakaan;
+
+    // Menambah buku ke perpustakaan
+    perpustakaan.tambahBuku("978-602-8519-81-4", "Pemrograman C++", "Budi Raharjo", 2018);
+    perpustakaan.tambahBuku("978-123-4567-89-0", "Struktur Data", "Dwi Putro", 2020);
+
+    int pilihan;
+    do {
+        cout << "\nMenu Manajemen Perpustakaan:\n";
+        cout << "1. Tambah Buku\n";
+        cout << "2. Cari Buku\n";
+        cout << "3. Tampilkan Semua Buku\n";
+        cout << "4. Pinjam Buku\n";
+        cout << "5. Kembalikan Buku\n";
+        cout << "6. Tampilkan Riwayat Peminjaman\n";
+        cout << "0. Keluar\n";
+        cout << "Pilih menu: ";
+        cin >> pilihan;
+
+        string ISBN, judul, pengarang;
+        int tahunTerbit;
+
+        switch (pilihan) {
+            case 1:
+                cout << "Masukkan ISBN: ";
+                cin >> ISBN;
+                cout << "Masukkan judul buku: ";
+                cin.ignore();
+                getline(cin, judul);
+                cout << "Masukkan pengarang: ";
+                getline(cin, pengarang);
+                cout << "Masukkan tahun terbit: ";
+                cin >> tahunTerbit;
+                perpustakaan.tambahBuku(ISBN, judul, pengarang, tahunTerbit);
+                break;
+            case 2:
+                cout << "Masukkan ISBN buku yang dicari: ";
+                cin >> ISBN;
+                perpustakaan.cariBuku(ISBN);
+                break;
+            case 3:
+                perpustakaan.tampilkanBuku();
+                break;
+            case 4:
+                cout << "Masukkan ISBN buku yang ingin dipinjam: ";
+                cin >> ISBN;
+                perpustakaan.pinjamBuku(ISBN);
+                break;
+            case 5:
+                perpustakaan.kembalikanBuku();
+                break;
+            case 6:
+                perpustakaan.tampilkanRiwayatPeminjaman();
+                break;
+            case 0:
+                cout << "Keluar dari program.\n";
+                break;
+            default:
+                cout << "Pilihan tidak valid. Coba lagi.\n";
+        }
+    } while (pilihan != 0);
+
+    return 0;
+}

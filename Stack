@@ -1,0 +1,111 @@
+#include <iostream>
+#include <cmath> // untuk operasi pangkat
+using namespace std;
+
+// Kelas Stack untuk mengimplementasikan struktur data stack
+class Stack {
+private:
+    int top; // Menyimpan indeks elemen teratas dalam stack
+    int arr[100];  // Array untuk menyimpan elemen stack dengan kapasitas maksimal 100
+
+public:
+    // Konstruktor untuk menginisialisasi stack kosong
+    Stack() {
+        top = -1;
+    }
+
+    // Fungsi push untuk menambahkan elemen ke stack
+    void push(int value) {
+        if (top >= 99) { // Cek jika stack penuh
+            cout << "Stack overflow" << endl;
+        } else {
+            top++;
+            arr[top] = value; // Simpan elemen di posisi teratas
+        }
+    }
+
+    // Fungsi pop untuk menghapus elemen teratas dari stack
+    int pop() {
+        if (isEmpty()) { // Cek jika stack kosong
+            cout << "Stack underflow" << endl;
+            return -1; // Kembalikan -1 jika stack kosong
+        } else {
+            int value = arr[top]; // Ambil nilai teratas
+            top--; // Kurangi indeks top
+            return value; // Kembalikan nilai teratas
+        }
+    }
+
+    // Fungsi isEmpty untuk mengecek apakah stack kosong
+    bool isEmpty() {
+        return top == -1;
+    }
+};
+
+// Fungsi untuk evaluasi ekspresi postfix
+int evaluatePostfix(string exp) {
+    Stack stack; // Buat objek stack
+    int step = 1;  // Variabel untuk menampilkan langkah-langkah evaluasi
+
+    // Looping untuk setiap karakter dalam ekspresi postfix
+    for (char &ch : exp) {
+        if (isdigit(ch)) { // Jika karakter adalah digit
+            stack.push(ch - '0'); // Konversi karakter ke integer dan push ke stack
+        } else { // Jika karakter adalah operator
+            int operand2 = stack.pop(); // Ambil operand kedua dari stack
+            int operand1 = stack.pop(); // Ambil operand pertama dari stack
+            int result;
+
+            // Evaluasi berdasarkan jenis operator
+            switch (ch) {
+                case '+':
+                    result = operand1 + operand2;
+                    break;
+                case '-':
+                    result = operand1 - operand2;
+                    break;
+                case '*':
+                    result = operand1 * operand2;
+                    break;
+                case '/':
+                    result = operand1 / operand2;
+                    break;
+                case '^':
+                    result = pow(operand1, operand2); // Operasi perpangkatan
+                    break;
+                default:
+                    cout << "Operator tidak dikenal!" << endl;
+                    return -1;
+            }
+            stack.push(result); // Push hasil evaluasi ke stack
+
+            // Tampilkan langkah evaluasi
+            cout << "Langkah " << step++ << ": " << operand1 << " " << ch << " " << operand2 
+                 << " = " << result << endl;
+        }
+    }
+
+    // Hasil akhir ada di puncak stack
+    return stack.pop();
+}
+
+int main() {
+    char lagi; // Variabel untuk mengulang program jika pengguna ingin memasukkan ekspresi lagi
+    
+    do {
+        string postfixExp; // Variabel untuk menyimpan ekspresi postfix
+        
+        cout << "Masukkan ekspresi postfix: ";
+        cin >> postfixExp;
+
+        int result = evaluatePostfix(postfixExp); // Evaluasi ekspresi postfix
+        cout << "Hasil akhir: " << result << endl; // Tampilkan hasil evaluasi
+
+        cout << "Apakah ingin memasukkan ekspresi lagi? (y/n): ";
+        cin >> lagi; // Tanyakan kepada pengguna apakah ingin mengulang
+
+    } while (lagi == 'y' || lagi == 'Y'); // Ulang jika pengguna menjawab 'y' atau 'Y'
+
+    cout << "Program selesai." << endl; // Pesan penutup
+    return 0;
+}

@@ -1,0 +1,111 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Mahasiswa {
+    string NIM;
+    string nama;
+    float IPK;
+};
+
+// Fungsi untuk menambahkan data mahasiswa
+void tambahMahasiswa(Mahasiswa* mhs[], int& jumlah) {
+    if (jumlah < 10) {
+        mhs[jumlah] = new Mahasiswa;  // Alokasi memori untuk mahasiswa baru
+        cout << "Masukkan NIM: ";
+        cin >> mhs[jumlah]->NIM;
+        cout << "Masukkan Nama: ";
+        cin >> mhs[jumlah]->nama;
+        cout << "Masukkan IPK: ";
+        cin >> mhs[jumlah]->IPK;
+        jumlah++;
+    } else {
+        cout << "Data mahasiswa sudah penuh!" << endl;
+    }
+}
+
+// Fungsi untuk menampilkan data mahasiswa
+void tampilkanMahasiswa(Mahasiswa* mhs[], int jumlah) {
+    cout << "\nData Mahasiswa: " << endl;
+    for (int i = 0; i < jumlah; i++) {
+        cout << "NIM: " << mhs[i]->NIM << ", Nama: " << mhs[i]->nama << ", IPK: " << mhs[i]->IPK << endl;
+    }
+}
+
+// Fungsi untuk menghapus data mahasiswa berdasarkan NIM
+void hapusMahasiswa(Mahasiswa* mhs[], int& jumlah, string NIM) {
+    int index = -1;
+    for (int i = 0; i < jumlah; i++) {
+        if (mhs[i]->NIM == NIM) {
+            index = i;
+            break;
+        }
+    }
+    
+    if (index != -1) {
+        delete mhs[index];  // Menghapus memori yang digunakan oleh mahasiswa
+        for (int i = index; i < jumlah - 1; i++) {
+            mhs[i] = mhs[i + 1];
+        }
+        jumlah--;
+        cout << "Mahasiswa dengan NIM " << NIM << " telah dihapus." << endl;
+    } else {
+        cout << "Mahasiswa dengan NIM " << NIM << " tidak ditemukan." << endl;
+    }
+}
+
+// Fungsi untuk mengurutkan data mahasiswa berdasarkan IPK (Bubble Sort)
+void urutkanMahasiswa(Mahasiswa* mhs[], int jumlah) {
+    for (int i = 0; i < jumlah - 1; i++) {
+        for (int j = 0; j < jumlah - i - 1; j++) {
+            if (mhs[j]->IPK < mhs[j + 1]->IPK) {
+                swap(mhs[j], mhs[j + 1]);
+            }
+        }
+    }
+    cout << "Data mahasiswa telah diurutkan berdasarkan IPK." << endl;
+}
+
+int main() {
+    Mahasiswa* mhs[10];  // Array of pointers untuk menyimpan data mahasiswa
+    int jumlah = 0;  // Jumlah mahasiswa yang telah ditambahkan
+    
+    int pilihan;
+    do {
+        cout << "\nMenu: " << endl;
+        cout << "1. Tambah Mahasiswa" << endl;
+        cout << "2. Tampilkan Mahasiswa" << endl;
+        cout << "3. Hapus Mahasiswa" << endl;
+        cout << "4. Urutkan Mahasiswa Berdasarkan IPK" << endl;
+        cout << "5. Keluar" << endl;
+        cout << "Pilih menu: ";
+        cin >> pilihan;
+        
+        switch (pilihan) {
+            case 1:
+                tambahMahasiswa(mhs, jumlah);
+                break;
+            case 2:
+                tampilkanMahasiswa(mhs, jumlah);
+                break;
+            case 3: {
+                string NIM;
+                cout << "Masukkan NIM mahasiswa yang akan dihapus: ";
+                cin >> NIM;
+                hapusMahasiswa(mhs, jumlah, NIM);
+                break;
+            }
+            case 4:
+                urutkanMahasiswa(mhs, jumlah);
+                tampilkanMahasiswa(mhs, jumlah);
+                break;
+            case 5:
+                cout << "Keluar program." << endl;
+                break;
+            default:
+                cout << "Pilihan tidak valid!" << endl;
+        }
+    } while (pilihan != 5);
+
+    return 0;
+}
